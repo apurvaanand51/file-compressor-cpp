@@ -103,6 +103,20 @@ For a quick test, select the included `sample.txt`. Compress it, download the `.
 
 The browser reads the selected file into memory. For very large files, use the C++ command-line program instead.
 
+## Browser interface screenshots
+
+### Main interface
+
+![Huffman file compressor interface with team members](assets/img1.png)
+
+### Compression result
+
+![Successful compression result](assets/img2.png)
+
+### Decompression result
+
+![Successful file restoration result](assets/img3.png)
+
 ## Command-line usage
 
 The program takes a command, an input path, and an optional output path:
