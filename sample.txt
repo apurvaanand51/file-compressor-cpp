@@ -1,0 +1,51 @@
+Huffman File Compression Demo
+
+This sample file is included so you can try the compressor right away.
+Huffman coding replaces frequently used characters with shorter bit codes.
+Repeated text like this makes a good example because common letters appear often.
+
+Try compressing this file, then switch to Decompress and select the .huf file
+you downloaded to restore the original text.
+
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo
+Huffman File Compression Demo

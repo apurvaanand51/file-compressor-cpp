@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10151f">
+  <title>Huff — File Compressor</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #10151f;
+      color: #edf2fb;
+      font-synthesis: none;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: radial-gradient(ellipse at 50% -20%, #273856 0, #10151f 58%);
+    }
+    main { width: min(720px, calc(100% - 32px)); margin: 0 auto; padding: 54px 0 40px; }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
+    .mark {
+      display: grid; width: 42px; height: 42px; place-items: center; border-radius: 13px;
+      background: #a7f3d0; color: #10251e; font-size: 23px; font-weight: 800;
+    }
+    .brand-name { font-size: 17px; font-weight: 720; letter-spacing: -.03em; }
+    .brand-subtitle { margin-top: 3px; color: #8290a5; font-size: 12px; }
+    .eyebrow { color: #a7f3d0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 12px 0 10px; font-size: clamp(32px, 6vw, 48px); letter-spacing: -.055em; line-height: 1.08; }
+    .intro { max-width: 560px; margin: 0; color: #9aa8bb; font-size: 15px; line-height: 1.65; }
+    .card { margin-top: 34px; padding: 24px; border: 1px solid #293447; border-radius: 18px; background: #171e2a; box-shadow: 0 24px 70px #0003; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 5px; border-radius: 11px; background: #10151f; }
+    .tab {
+      padding: 11px; border: 0; border-radius: 8px; background: transparent; color: #8794a8;
+      font: inherit; font-size: 14px; font-weight: 650; cursor: pointer;
+    }
+    .tab[aria-selected="true"] { background: #283344; color: #f3f6fb; }
+    .drop-zone {
+      display: flex; min-height: 205px; margin-top: 18px; padding: 24px; flex-direction: column;
+      align-items: center; justify-content: center; border: 1px dashed #46546b; border-radius: 13px;
+      background: #131a25; text-align: center; transition: border-color .15s, background .15s;
+    }
+    .drop-zone.dragging { border-color: #a7f3d0; background: #192820; }
+    .upload-icon { margin-bottom: 11px; color: #a7f3d0; font-size: 25px; }
+    .drop-title { font-size: 15px; font-weight: 650; }
+    .drop-help { margin-top: 7px; color: #8997aa; font-size: 13px; }
+    .browse { margin-top: 15px; color: #a7f3d0; font-size: 13px; font-weight: 700; cursor: pointer; }
+    #file-input { display: none; }
+    .selected-file { display: none; width: 100%; margin-top: 18px; padding: 13px 15px; border-radius: 10px; background: #202a39; text-align: left; }
+    .selected-file.visible { display: block; }
+    .file-name { overflow: hidden; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+    .file-size { margin-top: 5px; color: #91a0b5; font-size: 12px; }
+    .action {
+      width: 100%; margin-top: 18px; padding: 14px; border: 0; border-radius: 10px;
+      background: #a7f3d0; color: #10251e; font: inherit; font-size: 14px; font-weight: 750;
+      cursor: pointer; transition: filter .15s, transform .15s;
+    }
+    .action:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); }
+    .action:disabled { cursor: not-allowed; opacity: .45; }
+    .result { display: none; margin-top: 17px; padding: 14px; border: 1px solid #294c3c; border-radius: 10px; background: #17271f; }
+    .result.visible { display: block; }
+    .result-title { color: #b6f5d6; font-size: 13px; font-weight: 700; }
+    .result-detail { margin-top: 6px; color: #a3b4aa; font-size: 12px; line-height: 1.5; }
+    .download { display: inline-block; margin-top: 10px; color: #a7f3d0; font-size: 13px; font-weight: 700; }
+    .error { display: none; margin-top: 14px; color: #ffaaa7; font-size: 13px; line-height: 1.5; }
+    .error.visible { display: block; }
+    .notes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; color: #8794a8; font-size: 12px; line-height: 1.55; }
+    .note { padding: 13px; border-radius: 10px; background: #141b26; }
+    .note strong { display: block; margin-bottom: 4px; color: #c4cfde; font-size: 12px; }
+    footer { margin-top: 22px; color: #667489; font-size: 11px; text-align: center; }
+    @media (max-width: 540px) {
+      main { padding-top: 32px; }
+      .brand { margin-bottom: 38px; }
+      .card { padding: 16px; }
+      .notes { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="brand">
+      <div class="mark" aria-hidden="true">H</div>
+      <div>
+        <div class="brand-name">Huff</div>
+        <div class="brand-subtitle">A small file compression lab</div>
+      </div>
+    </header>
+
+    <section>
+      <div class="eyebrow">Data Structures &amp; Algorithms</div>
+      <h1>Make room for<br>what matters.</h1>
+      <p class="intro">Compress files with lossless Huffman coding, or restore a file you compressed earlier. Your files stay on your device.</p>
+    </section>
+
+    <section class="card" aria-label="File compression tool">
+      <div class="tabs" role="tablist" aria-label="Operation">
+        <button class="tab" id="compress-tab" role="tab" aria-selected="true" type="button">Compress</button>
+        <button class="tab" id="decompress-tab" role="tab" aria-selected="false" type="button">Decompress</button>
+      </div>
+
+      <div class="drop-zone" id="drop-zone">
+        <div class="upload-icon" aria-hidden="true">↥</div>
+        <div class="drop-title" id="drop-title">Drop a file here to compress</div>
+        <div class="drop-help">Your original file is never changed</div>
+        <label class="browse" for="file-input">Choose a file</label>
+        <input id="file-input" type="file">
+      </div>
+
+      <div class="selected-file" id="selected-file">
+        <div class="file-name" id="file-name"></div>
+        <div class="file-size" id="file-size"></div>
+      </div>
+
+      <button class="action" id="action" type="button" disabled>Choose a file to begin</button>
+      <div class="error" id="error" role="alert"></div>
+      <div class="result" id="result" aria-live="polite">
+        <div class="result-title" id="result-title"></div>
+        <div class="result-detail" id="result-detail"></div>
+        <a class="download" id="download" download>Download file ↓</a>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="About this project">
+      <div class="note"><strong>Lossless by design</strong>Every byte is restored exactly during decompression.</div>
+      <div class="note"><strong>Private &amp; offline</strong>Processing happens in this browser; no file is uploaded.</div>
+    </section>
+    <footer>Huffman coding · Prefix-free binary trees · HUF1 file format</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
