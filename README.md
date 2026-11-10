@@ -76,7 +76,28 @@ ctest --test-dir build --output-on-failure
 
 ### 3. Try the browser interface
 
-Open `web\index.html` in your browser. Select **Compress** or **Decompress**, then choose a file or drag it into the drop area. Use the download link that appears when processing finishes.
+You can run the browser UI either directly from the file or from a small local web server:
+
+Option A: open the page directly in your browser
+
+```powershell
+Start-Process "web\index.html"
+```
+
+Option B: serve the project from a local web server and open the page in a browser
+
+```powershell
+cd "C:\path\to\Project"
+python -m http.server 8000
+```
+
+Then open:
+
+```text
+http://localhost:8000/web/index.html
+```
+
+Once the page loads, select **Compress** or **Decompress**, then choose a file or drag it into the drop area. Use the download link that appears after processing finishes.
 
 For a quick test, select the included `sample.txt`. Compress it, download the `.huf` result, switch to **Decompress**, and choose that downloaded file. The restored file should contain the original text.
 
