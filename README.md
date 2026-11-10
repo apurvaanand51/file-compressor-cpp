@@ -181,6 +181,13 @@ Payload bits are packed most-significant-bit first. Unused bits in the last payl
 
 The fixed header is 14 bytes, and each distinct byte value adds another 9 bytes. This metadata explains why small or high-entropy files can become larger when compressed.
 
+## Team members
+
+| Name | UID |
+|---|---:|
+| Apurva Anand | 25BCS12080 |
+| Tabish Khan | 25BCS12094 |
+
 ## Project files
 
 ```text
