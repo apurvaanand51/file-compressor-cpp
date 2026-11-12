@@ -8,6 +8,7 @@ The command-line app and browser UI use the same `HUF1` file format. A file comp
 
 - **Live website:** [file-compresson.netlify.app](https://file-compresson.netlify.app/)
 - **GitHub repository:** [apurvaanand51/file-compressor-cpp](https://github.com/apurvaanand51/file-compressor-cpp)
+- **Project Report:** [Report](https://github.com/apurvaanand51/file-compressor-cpp/blob/main/report/project-report.pdf)
 
 ## What it does
 
