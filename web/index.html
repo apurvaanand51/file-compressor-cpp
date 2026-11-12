@@ -3,123 +3,299 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f5f5">
+  <meta name="theme-color" content="#f5f6f1">
+  <meta name="description" content="Compress and restore files with Huffman coding. Your files stay on your device.">
   <title>Huff — File Compressor</title>
   <style>
     :root {
-      font-family: Arial, Helvetica, sans-serif;
-      color: #222;
-      background: #f5f5f5;
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #172a26;
+      background: #f5f6f1;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      --ink: #172a26;
+      --muted: #6b7772;
+      --line: #e4e9e2;
+      --green: #245b47;
+      --green-dark: #194533;
+      --lime: #d7f17a;
     }
     * { box-sizing: border-box; }
-    body {
-      min-height: 100vh;
-      margin: 0;
-      line-height: 1.5;
+    body { min-width: 320px; min-height: 100vh; margin: 0; line-height: 1.5; }
+    button, input { font: inherit; }
+    button:focus-visible, a:focus-visible, [tabindex]:focus-visible, label:focus-within {
+      outline: 3px solid #90b94a;
+      outline-offset: 3px;
     }
-    main { width: min(620px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0; }
-    .brand { margin-bottom: 24px; }
-    h1 { margin: 0 0 4px; font-size: 28px; }
-    .brand-subtitle, .intro, .drop-help, .notes, footer { color: #555; }
-    .intro { margin: 0; }
-    h2 { margin: 0 0 12px; font-size: 20px; }
-    .card, .team { margin-top: 22px; padding: 20px; border: 1px solid #ccc; background: #fff; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .page-shell { width: min(1120px, calc(100% - 48px)); margin: 0 auto; }
+    .topbar {
+      height: 82px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; }
+    .brand-mark {
+      width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
+      background: var(--green); color: var(--lime);
+    }
+    .brand-name { font-size: 19px; font-weight: 750; letter-spacing: -.06em; }
+    .brand-caption { margin-left: 9px; color: #8a948f; font-size: 12px; font-weight: 500; letter-spacing: 0; }
+    .privacy-pill {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
+      border: 1px solid #dfe7dd; border-radius: 99px; background: #fff;
+      color: #49675a; font-size: 12px; font-weight: 650;
+    }
+    .privacy-dot { width: 7px; height: 7px; border-radius: 50%; background: #5da36d; }
+    main { padding: 64px 0 46px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 30px; margin-bottom: 36px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; margin-bottom: 15px;
+      color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase;
+    }
+    .eyebrow-mark { width: 20px; height: 1px; background: #8cae81; }
+    h1 { max-width: 620px; margin: 0; font-size: clamp(38px, 5vw, 58px); font-weight: 650; letter-spacing: -.065em; line-height: 1.04; }
+    .hero-copy { max-width: 550px; margin: 16px 0 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
+    .hero-note { display: flex; align-items: center; gap: 10px; padding: 12px 0 5px; color: #63716a; font-size: 12px; white-space: nowrap; }
+    .hero-note svg { flex: 0 0 auto; color: var(--green); }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 286px; align-items: stretch; gap: 20px; }
+    .tool-card, .side-card { border: 1px solid #e5e9e3; border-radius: 18px; background: #fff; box-shadow: 0 12px 36px rgba(30, 55, 43, .045); }
+    .tool-card { padding: 27px; }
+    .card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+    h2 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -.025em; }
+    .card-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .format-tag { padding: 5px 9px; border: 1px solid var(--line); border-radius: 7px; color: #76827c; font-size: 10px; font-weight: 700; letter-spacing: .06em; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 18px; border-radius: 10px; background: #f2f4f0; }
     .tab {
-      padding: 8px 14px; border: 1px solid #888; background: #f2f2f2; color: #222;
-      font: inherit; cursor: pointer;
+      min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border: 0; border-radius: 7px; background: transparent; color: #758079;
+      font-size: 13px; font-weight: 650; cursor: pointer; transition: background .16s ease, color .16s ease, box-shadow .16s ease;
     }
-    .tab[aria-selected="true"] { background: #ddd; font-weight: bold; }
+    .tab[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: 0 2px 6px rgba(31, 51, 40, .1); }
+    .tab svg { width: 15px; height: 15px; }
     .drop-zone {
-      display: flex; min-height: 150px; padding: 20px; flex-direction: column;
-      align-items: center; justify-content: center; border: 1px dashed #777;
-      background: #fafafa; text-align: center;
+      min-height: 218px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 25px; border: 1.5px dashed #cbd6ca; border-radius: 12px; background: #fbfcf9;
+      text-align: center; transition: border-color .16s ease, background .16s ease, transform .16s ease;
     }
-    .drop-zone.dragging { border-color: #333; background: #eee; }
-    .upload-icon { margin-bottom: 6px; font-size: 24px; }
-    .drop-title { font-weight: bold; }
-    .browse { margin-top: 10px; color: #0645ad; text-decoration: underline; cursor: pointer; }
-    #file-input { display: none; }
-    .selected-file { display: none; width: 100%; margin-top: 14px; padding: 10px; border: 1px solid #ccc; background: #f7f7f7; text-align: left; }
-    .selected-file.visible { display: block; }
-    .file-name { overflow: hidden; font-weight: bold; text-overflow: ellipsis; white-space: nowrap; }
-    .file-size { color: #555; font-size: 13px; }
+    .drop-zone.dragging { transform: scale(1.005); border-color: #4b8b65; background: #f2f8ed; }
+    .upload-symbol { width: 48px; height: 48px; display: grid; place-items: center; margin-bottom: 13px; border: 1px solid #e3eadf; border-radius: 14px; background: #fff; color: var(--green); }
+    .drop-title { font-size: 14px; font-weight: 700; letter-spacing: -.01em; }
+    .drop-help { margin-top: 4px; color: #87918b; font-size: 12px; }
+    .browse {
+      min-height: 36px; display: inline-flex; align-items: center; justify-content: center;
+      margin-top: 15px; padding: 0 13px; border: 1px solid #dce5dc; border-radius: 7px;
+      background: white; color: #315d46; font-size: 12px; font-weight: 700; cursor: pointer;
+      transition: border-color .16s ease, background .16s ease;
+    }
+    .browse:hover { border-color: #9cbaa0; background: #f7faf5; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    #file-input:focus-visible + .drop-zone { outline: 3px solid #90b94a; outline-offset: 3px; }
+    .selected-file {
+      display: none; align-items: center; gap: 12px; margin-top: 14px; padding: 12px 14px;
+      border: 1px solid #e6ebe4; border-radius: 10px; background: #fbfcfa;
+    }
+    .selected-file.visible { display: flex; }
+    .file-icon { width: 34px; height: 38px; display: grid; flex: 0 0 auto; place-items: center; border-radius: 7px; background: #edf3e9; color: var(--green); }
+    .file-meta { min-width: 0; flex: 1; text-align: left; }
+    .file-name { overflow: hidden; color: #283a33; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .file-size { margin-top: 2px; color: #89938d; font-size: 11px; }
+    .file-check { color: #5b9669; }
     .action {
-      margin-top: 14px; padding: 9px 14px; border: 1px solid #888;
-      background: #eee; color: #222; font: inherit; cursor: pointer;
+      width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      margin-top: 16px; padding: 0 18px; border: 0; border-radius: 9px; background: var(--green);
+      color: white; font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background .16s ease, transform .16s ease;
     }
-    .action:disabled { cursor: not-allowed; color: #777; }
-    .result { display: none; margin-top: 14px; padding: 12px; border: 1px solid #999; background: #f7f7f7; }
-    .result.visible { display: block; }
-    .result-title { font-weight: bold; }
-    .result-detail { margin-top: 4px; }
-    .download { display: inline-block; margin-top: 8px; color: #0645ad; }
-    .error { display: none; margin-top: 12px; color: #b00020; }
+    .action:not(:disabled):hover { transform: translateY(-1px); background: var(--green-dark); }
+    .action:disabled { background: #e8ece7; color: #99a19b; cursor: not-allowed; }
+    .error { display: none; margin-top: 12px; padding: 10px 12px; border: 1px solid #f1d0cc; border-radius: 8px; background: #fff7f6; color: #a63f34; font-size: 12px; }
     .error.visible { display: block; }
-    .notes { margin-top: 14px; }
-    .team table { width: 100%; border-collapse: collapse; }
-    .team th, .team td { padding: 7px 8px; border: 1px solid #ccc; text-align: left; }
-    .team th { background: #eee; }
-    footer { margin-top: 18px; font-size: 13px; }
-    @media (max-width: 480px) {
-      main { padding-top: 20px; }
-      .card, .team { padding: 14px; }
+    .result { display: none; margin-top: 14px; padding: 16px; border: 1px solid #dcebd7; border-radius: 10px; background: #f7fbf4; }
+    .result.visible { display: block; }
+    .result-heading { display: flex; align-items: center; gap: 9px; }
+    .result-mark { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 50%; background: #e1f0dc; color: #347147; }
+    .result-title { color: #294434; font-size: 13px; font-weight: 750; }
+    .result-detail { margin: 7px 0 0 34px; color: #65756a; font-size: 12px; }
+    .download { display: inline-flex; align-items: center; gap: 7px; margin: 12px 0 0 34px; color: #2e6945; font-size: 12px; font-weight: 750; text-decoration: none; }
+    .download:hover { text-decoration: underline; }
+    .side-card { align-self: start; display: flex; flex-direction: column; overflow: hidden; }
+    .side-top { padding: 24px 22px 19px; }
+    .side-kicker { color: #75827b; font-size: 10px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .side-card h2 { margin-top: 8px; font-size: 19px; line-height: 1.3; }
+    .side-intro { margin: 8px 0 0; color: #78847d; font-size: 12px; line-height: 1.7; }
+    .steps { display: grid; gap: 17px; padding: 0 22px 22px; }
+    .step { display: grid; grid-template-columns: 28px 1fr; gap: 11px; align-items: start; }
+    .step-number { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid #e5eae3; border-radius: 8px; color: #4e6f58; font-size: 11px; font-weight: 750; }
+    .step-title { margin: 1px 0 2px; color: #35473d; font-size: 12px; font-weight: 700; }
+    .step-copy { margin: 0; color: #89938d; font-size: 11px; line-height: 1.55; }
+    .side-bottom { display: flex; align-items: flex-start; gap: 10px; margin-top: auto; padding: 15px 20px; border-top: 1px solid #e8ede7; background: #fbfcfa; }
+    .lock-icon { flex: 0 0 auto; color: #598064; }
+    .side-bottom p { margin: 0; color: #708077; font-size: 10px; line-height: 1.55; }
+    .bottom-bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 26px 2px 0; color: #89938d; font-size: 11px; }
+    .bottom-brand { color: #6d7b72; font-weight: 700; }
+    .bottom-team { text-align: right; }
+    @media (max-width: 780px) {
+      .page-shell { width: min(640px, calc(100% - 36px)); }
+      main { padding-top: 46px; }
+      .hero { grid-template-columns: 1fr; gap: 12px; margin-bottom: 27px; }
+      .hero-note { padding-top: 0; }
+      .workspace { grid-template-columns: 1fr; }
+      .side-card { display: grid; grid-template-columns: 1fr 1fr; }
+      .side-top { padding-bottom: 10px; }
+      .steps { padding-top: 23px; }
+      .side-bottom { grid-column: 1 / -1; }
+    }
+    @media (max-width: 520px) {
+      .page-shell { width: calc(100% - 28px); }
+      .topbar { height: 68px; }
+      .brand-caption { display: none; }
+      .privacy-pill { padding: 7px 9px; font-size: 10px; }
+      main { padding: 36px 0 25px; }
+      h1 { font-size: 40px; }
+      .hero-copy { font-size: 13px; }
+      .tool-card { padding: 17px; border-radius: 14px; }
+      .card-heading { margin-bottom: 18px; }
+      .drop-zone { min-height: 200px; padding: 20px 14px; }
+      .side-card { display: block; }
+      .steps { padding-top: 6px; }
+      .bottom-bar { align-items: flex-start; flex-direction: column; gap: 7px; }
+      .bottom-team { text-align: left; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <header class="brand">
-      <h1>Huffman File Compressor</h1>
-      <div class="brand-subtitle">A simple tool to compress and restore files</div>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Huff home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M5 5v14M19 5v14M5 12h14M5 8h5M14 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="brand-name">huff<span class="brand-caption">FILE COMPRESSION, SIMPLIFIED</span></span>
+      </a>
+      <div class="privacy-pill"><span class="privacy-dot"></span> Files stay on your device</div>
     </header>
 
-    <section>
-      <p class="intro">Choose a file to compress it, or select a .huf file to restore it. Files are processed in your browser and are not uploaded.</p>
-    </section>
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-mark"></span> HUFFMAN FILE TOOL</div>
+          <h1 id="page-title">Make room for<br>what matters.</h1>
+          <p class="hero-copy">Shrink files with Huffman coding, or bring them back exactly as they were. Simple, lossless, and entirely yours.</p>
+        </div>
+        <div class="hero-note">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3 5 6v5c0 4.7 2.9 8.3 7 10 4.1-1.7 7-5.3 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Private by design · no uploads
+        </div>
+      </section>
 
-    <section class="card" aria-label="File compression tool">
-      <div class="tabs" role="tablist" aria-label="Operation">
-        <button class="tab" id="compress-tab" role="tab" aria-selected="true" type="button">Compress</button>
-        <button class="tab" id="decompress-tab" role="tab" aria-selected="false" type="button">Decompress</button>
+      <div class="workspace">
+        <section class="tool-card" aria-label="File compression tool">
+          <div class="card-heading">
+            <div>
+              <h2>Get started</h2>
+              <p class="card-subtitle">Choose what you’d like to do with your file.</p>
+            </div>
+            <span class="format-tag">HUF1 FORMAT</span>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="Operation">
+            <button class="tab" id="compress-tab" role="tab" aria-selected="true" aria-controls="file-panel" type="button">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4-4-4M4 16h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Compress
+            </button>
+            <button class="tab" id="decompress-tab" role="tab" aria-selected="false" aria-controls="file-panel" type="button">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 17V7m0 0 4 4m-4-4-4 4M4 4h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Decompress
+            </button>
+          </div>
+
+          <div id="file-panel" role="tabpanel" aria-labelledby="compress-tab">
+            <input class="visually-hidden" id="file-input" type="file" aria-label="Choose a file to compress">
+            <label class="drop-zone" id="drop-zone" for="file-input" aria-describedby="drop-help">
+              <div class="upload-symbol" aria-hidden="true">
+                <svg width="23" height="23" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 16V4m0 0L7 9m5-5 5 5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="drop-title" id="drop-title">Drop a file here to compress</div>
+              <div class="drop-help" id="drop-help">Any file type works · Your original stays untouched</div>
+              <span class="browse" id="browse-label">Browse files</span>
+            </label>
+
+            <div class="selected-file" id="selected-file" aria-live="polite">
+              <div class="file-icon" aria-hidden="true">
+                <svg width="18" height="20" viewBox="0 0 18 20" fill="none"><path d="M3 1h7l5 5v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 1v5h5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="file-meta">
+                <div class="file-name" id="file-name"></div>
+                <div class="file-size" id="file-size"></div>
+              </div>
+              <svg class="file-check" width="17" height="17" viewBox="0 0 20 20" fill="none" aria-label="File ready"><path d="m5 10 3.2 3.2L15.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <button class="action" id="action" type="button" disabled>
+              <span id="action-label">Choose a file to begin</span>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="error" id="error" role="alert"></div>
+            <div class="result" id="result" aria-live="polite">
+              <div class="result-heading">
+                <span class="result-mark" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3.5 8 3 3 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <div class="result-title" id="result-title"></div>
+              </div>
+              <div class="result-detail" id="result-detail"></div>
+              <a class="download" id="download" download><span id="download-label">Download file</span>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v9m0 0 3-3m-3 3L5 8m-2 5h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <aside class="side-card" aria-labelledby="how-heading">
+          <div class="side-top">
+            <div class="side-kicker">A little bit of magic</div>
+            <h2 id="how-heading">Small file.<br>Same original.</h2>
+            <p class="side-intro">Huffman coding finds a smarter way to store your data without losing a single bit.</p>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <span class="step-number">01</span>
+              <div><p class="step-title">Choose a file</p><p class="step-copy">Drop it in or browse your device.</p></div>
+            </div>
+            <div class="step">
+              <span class="step-number">02</span>
+              <div><p class="step-title">We do the clever bit</p><p class="step-copy">Frequent data gets shorter codes.</p></div>
+            </div>
+            <div class="step">
+              <span class="step-number">03</span>
+              <div><p class="step-title">Save your result</p><p class="step-copy">Download your new .huf file.</p></div>
+            </div>
+          </div>
+          <div class="side-bottom">
+            <svg class="lock-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 8V5a3 3 0 0 1 6 0v3m-3 4v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <p>Your files are processed locally in your browser. Nothing is sent to a server.</p>
+          </div>
+        </aside>
       </div>
 
-      <div class="drop-zone" id="drop-zone">
-        <div class="upload-icon" aria-hidden="true">↥</div>
-        <div class="drop-title" id="drop-title">Drop a file here to compress</div>
-        <div class="drop-help">Your original file is never changed</div>
-        <label class="browse" for="file-input">Choose a file</label>
-        <input id="file-input" type="file">
-      </div>
-
-      <div class="selected-file" id="selected-file">
-        <div class="file-name" id="file-name"></div>
-        <div class="file-size" id="file-size"></div>
-      </div>
-
-      <button class="action" id="action" type="button" disabled>Choose a file to begin</button>
-      <div class="error" id="error" role="alert"></div>
-      <div class="result" id="result" aria-live="polite">
-        <div class="result-title" id="result-title"></div>
-        <div class="result-detail" id="result-detail"></div>
-        <a class="download" id="download" download>Download file ↓</a>
-      </div>
-    </section>
-
-    <section class="team" aria-labelledby="team-heading">
-      <h2 id="team-heading">Team Members</h2>
-      <table>
-        <thead>
-          <tr><th>Name</th><th>UID</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Apurva Anand</td><td>25BCS12080</td></tr>
-          <tr><td>Tabish Khan</td><td>25BCS12094</td></tr>
-        </tbody>
-      </table>
-    </section>
-    <footer>Huffman coding · HUF1 file format</footer>
-  </main>
+      <footer class="bottom-bar">
+        <span class="bottom-brand">Huff · Huffman coding, made simple.</span>
+        <span class="bottom-team">Made by Apurva Anand · 25BCS12080 &nbsp;|&nbsp; Tabish Khan · 25BCS12094</span>
+      </footer>
+    </main>
+  </div>
   <script src="app.js"></script>
 </body>
 </html>

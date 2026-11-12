@@ -4,6 +4,7 @@ const MAGIC = [0x48, 0x55, 0x46, 0x31];
 const input = document.getElementById("file-input");
 const dropZone = document.getElementById("drop-zone");
 const action = document.getElementById("action");
+const actionLabel = document.getElementById("action-label");
 const selectedFile = document.getElementById("selected-file");
 const errorBox = document.getElementById("error");
 const resultBox = document.getElementById("result");
@@ -27,9 +28,18 @@ function setMode(nextMode) {
   mode = nextMode;
   document.getElementById("compress-tab").setAttribute("aria-selected", String(mode === "compress"));
   document.getElementById("decompress-tab").setAttribute("aria-selected", String(mode === "decompress"));
+  document.getElementById("file-panel").setAttribute(
+    "aria-labelledby",
+    mode === "compress" ? "compress-tab" : "decompress-tab"
+  );
   document.getElementById("drop-title").textContent =
     mode === "compress" ? "Drop a file here to compress" : "Drop a .huf file here to restore";
-  input.accept = mode === "decompress" ? ".huf,application/octet-stream" : "";
+  document.getElementById("drop-help").textContent =
+    mode === "compress" ? "Any file type works · Your original stays untouched" : "Choose a Huff HUF1 archive to restore";
+  document.getElementById("browse-label").textContent =
+    mode === "compress" ? "Browse files" : "Choose a .huf file";
+  input.setAttribute("aria-label", mode === "compress" ? "Choose a file to compress" : "Choose a .huf file to restore");
+  input.accept = mode === "decompress" ? ".huf" : "";
   clearMessages();
   refreshFile();
 }
@@ -51,7 +61,7 @@ function refreshFile() {
     document.getElementById("file-size").textContent = formatBytes(file.size);
   }
   action.disabled = file === null;
-  action.textContent = file === null
+  actionLabel.textContent = file === null
     ? "Choose a file to begin"
     : mode === "compress" ? "Compress file" : "Decompress file";
 }
@@ -235,7 +245,7 @@ function showResult(output, outputName, originalSize, resultSize) {
   const link = document.getElementById("download");
   link.href = downloadUrl;
   link.download = outputName;
-  link.textContent = `Download ${outputName} ↓`;
+  document.getElementById("download-label").textContent = `Download ${outputName}`;
   document.getElementById("result-title").textContent =
     mode === "compress" ? "Compression complete" : "File restored successfully";
   let detail;
@@ -279,7 +289,7 @@ action.addEventListener("click", async () => {
   if (file === null) return;
   clearMessages();
   action.disabled = true;
-  action.textContent = mode === "compress" ? "Compressing…" : "Restoring…";
+  actionLabel.textContent = mode === "compress" ? "Compressing…" : "Restoring…";
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const output = mode === "compress" ? compressBytes(bytes) : decompressBytes(bytes);
