@@ -4,6 +4,11 @@ Huff is a small, lossless file-compression project built as a Data Structures an
 
 The command-line app and browser UI use the same `HUF1` file format. A file compressed in either interface can be decompressed in the other.
 
+## Links
+
+- **Live website:** [file-compresson.netlify.app](https://file-compresson.netlify.app/)
+- **GitHub repository:** [apurvaanand51/file-compressor-cpp](https://github.com/apurvaanand51/file-compressor-cpp)
+
 ## What it does
 
 - Compresses and restores text and binary files, including images and other file types.
